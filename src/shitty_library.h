@@ -112,7 +112,6 @@ static void *toolkit_malloc(unsigned long size)
  *	like fprintf, format your shit yourself though
  *
  */
-
 __attribute__((noinline))
 static void print_out(const char *buf, unsigned long len)
 {

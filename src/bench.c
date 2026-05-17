@@ -41,9 +41,14 @@ struct old_timespec32 {
 __attribute__((always_inline))
 static unsigned long long time_now_ns() {
 	struct old_timespec32 ts32;
+	long clk_id;
 
-	// CLOCK_MONOTONIC is 1
-	__syscall(SYS_clock_gettime32, 1, (long)&ts32, NONE, NONE, NONE, NONE);
+#ifdef CLOCK_MONOTONIC_RAW
+	clk_id = CLOCK_MONOTONIC_RAW;
+#else
+	clk_id = CLOCK_MONOTONIC;
+#endif
+	__syscall(SYS_clock_gettime32, clk_id, (long)&ts32, NONE, NONE, NONE, NONE);
 
 	return (unsigned long long)ts32.tv_sec * 1000000000ULL + ts32.tv_nsec;
 }
