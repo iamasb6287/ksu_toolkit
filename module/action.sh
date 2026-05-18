@@ -9,5 +9,5 @@ KSUDIR="/data/adb/ksu"
 
 "$MODDIR/toolkit" --bench
 
-sleep 20
+[ "$KSU_VER_CODE" -lt 32492 ] && sleep 20
 
