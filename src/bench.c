@@ -174,7 +174,7 @@ skip_setresuid:
 start_loop:
 	box_template[1] = 49 + j; // off by one, array starts with 0, humans count with 1
     
-	run_bench(SYS_newfstatat, AT_FDCWD, (long)tests[j], (long)&st, NULL, NONE, NONE, "newfstatat:  ");
+	run_bench(SYS_newfstatat, AT_FDCWD, (long)tests[j], (long)&st, AT_SYMLINK_NOFOLLOW, NONE, NONE, "newfstatat:  ");
 	run_bench(SYS_faccessat, AT_FDCWD, (long)tests[j], F_OK, NONE, NONE, NONE, "faccessat:   ");
 	run_bench(SYS_execve, (long)tests[j], NULL, NULL, NONE, NONE, NONE, "execve:      ");
     
