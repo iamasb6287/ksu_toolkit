@@ -101,7 +101,7 @@ static int bench_main()
 	// Pin to core 0 for consistency
 	cpu_set_t cpuset = {};
 	CPU_SET(0, &cpuset);
-	__syscall(SYS_sched_setaffinity, 0, sizeof(cpuset), &cpuset, NULL, NULL, NULL);
+	__syscall(SYS_sched_setaffinity, 0, sizeof(cpuset), &cpuset, NONE, NONE, NONE);
 	__syscall(SYS_setpriority, 0, 0, -20, NONE, NONE, NONE);
 
 	struct stat st;
@@ -148,13 +148,18 @@ static int bench_main()
 
 	print_out(newline, sizeof(newline) - 1 );
 
+	// just skip setresuid test when uid is 0
+	if (!__syscall(SYS_getuid, NONE, NONE, NONE, NONE, NONE, NONE))
+		goto skip_setresuid;
+
 #if defined(__arm__) 
-	run_bench(SYS_setresuid16, 10000, 10000, 10000, NULL, NULL, NULL, "setresuid16: ");
+	run_bench(SYS_setresuid16, 10000, 10000, 10000, NONE, NONE, NONE, "setresuid16: ");
 #endif
 
-	run_bench(SYS_setresuid, 10000, 10000, 10000, NULL, NULL, NULL, "setresuid:   ");
+	run_bench(SYS_setresuid, 10000, 10000, 10000, NONE, NONE, NONE, "setresuid:   ");
 	print_out(newline, sizeof(newline) - 1 );
 
+skip_setresuid:
 	const void *tests[] = {
 		nothing,
 		devnull,
@@ -169,9 +174,9 @@ static int bench_main()
 start_loop:
 	box_template[1] = 49 + j; // off by one, array starts with 0, humans count with 1
     
-	run_bench(SYS_newfstatat, AT_FDCWD, (long)tests[j], (long)&st, NULL, NULL, NULL, "newfstatat:  ");
-	run_bench(SYS_faccessat, AT_FDCWD, (long)tests[j], F_OK, NULL, NULL, NULL, "faccessat:   ");
-	run_bench(SYS_execve, (long)tests[j], NULL, NULL, NULL, NULL, NULL, "execve:      ");
+	run_bench(SYS_newfstatat, AT_FDCWD, (long)tests[j], (long)&st, NULL, NONE, NONE, "newfstatat:  ");
+	run_bench(SYS_faccessat, AT_FDCWD, (long)tests[j], F_OK, NONE, NONE, NONE, "faccessat:   ");
+	run_bench(SYS_execve, (long)tests[j], NULL, NULL, NONE, NONE, NONE, "execve:      ");
     
 	print_out(newline, 1);
 	
