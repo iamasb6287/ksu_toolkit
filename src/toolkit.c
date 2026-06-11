@@ -236,15 +236,25 @@ static int toolkit_main(long argc, char **argv, char **envp)
 		char buf_version[] = "ksuver: ??????\n";
 		char buf_flags[] = "flags: ??????\n";
 		char buf_features[] = "features: ??????\n";
+		char buf_uapiver[] = "uapi: ??????\n";
 
 		ksu_sys_reboot(KSU_INSTALL_MAGIC2, 0, (long)&fd);
 		if (!fd)
 			goto fail;
 
-		struct ksu_get_info_legacy_cmd *cmd = (struct ksu_get_info_legacy_cmd *)sp;
-		int ret = sys_ioctl(fd, KSU_IOCTL_GET_INFO_LEGACY, (long)cmd);
-		if (ret)
-			goto fail;
+		// handles ksu_get_info compat, legacy and one with uapi ver
+		// what we can do is to just prepare 4x u32 space (ksu_get_info_cmd) then act accordingly
+		struct ksu_get_info_cmd *cmd = (struct ksu_get_info_cmd *)sp;
+		int ret = sys_ioctl(fd, KSU_IOCTL_GET_INFO, (long)cmd);
+		if (ret) {
+			// if new ioctl fails, we try again, this time trying legacy
+			ret = sys_ioctl(fd, KSU_IOCTL_GET_INFO_LEGACY, (long)cmd);
+			if (ret)
+				goto fail;
+
+			dumb_itoa(0, 6, &buf_uapiver[6]);
+		} else
+			dumb_itoa(cmd->uapi_version, 6, &buf_uapiver[6]);			
 
 		dumb_itoa(cmd->version, 6, &buf_version[8]);
 		print_out(buf_version, sizeof(buf_version) - 1);
@@ -254,6 +264,8 @@ static int toolkit_main(long argc, char **argv, char **envp)
 
 		dumb_itoa(cmd->features, 6, &buf_features[10]);
 		print_out(buf_features, sizeof(buf_features) - 1);
+
+		print_out(buf_uapiver, sizeof(buf_uapiver) - 1);
 
 		return 0;
 
