@@ -35,10 +35,6 @@ static int toolkit_main(long argc, char **argv, char **envp)
 	;
 
 	unsigned int fd = 0;
-	_Defer { 
-		if (fd)
-			__syscall(SYS_close, fd, NONE, NONE, NONE, NONE, NONE);
-	}
 
 	// use once needed, for -Oz atleast, these are put to registers anyway
 	// register char *argv1 __asm__("x19") = argv[1];
