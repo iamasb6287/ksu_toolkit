@@ -1,118 +1,151 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KSU Toolkit</title>
-    <script src="./src/index.js" type="module"></script>
-    <link rel="stylesheet" href="./src/styles.css" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>KSU 工具箱</title>
+    <link rel="stylesheet" href="src/styles.css">
+    <link rel="stylesheet" href="src/theme.css">
+    <script type="module" src="src/index.js"></script>
 </head>
 <body>
-    <div class="root_layout">
-        <div class="header">
-            <div class="top-bar">
-                <md-icon-button id="exit-btn">
-                    <md-icon>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>
-                    </md-icon>
-                </md-icon-button>
-                <div class="title" slot="headline">KernelSU Toolkit</div>
-                <md-icon-button id="update-btn">
-                    <md-icon>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M160-80v-80h640v80H160Zm320-160L200-600h160v-280h240v280h160L480-240Z"/></svg>
-                    </md-icon>
-                </md-icon-button>
+    <div id="exit-btn" class="exit-btn">
+        <md-icon-button>
+            <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg></md-icon>
+        </md-icon-button>
+    </div>
+    <div class="update-container">
+        <md-filled-button id="update-btn" class="hide">更新</md-filled-button>
+    </div>
+    <md-tabs>
+        <md-primary-tab id="crown-tab">
+            <md-icon slot="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M200-160v-80h560v80H200Zm0-140-80-440h720l-80 440H200Zm80-80h40v-120h-40v120Zm160 0h40v-120h-40v120Zm160 0h40v-120h-40v120ZM240-640h480l20-40H220l20 40Z"/></svg></md-icon>
+            管理器
+        </md-primary-tab>
+        <md-primary-tab id="umount-tab">
+            <md-icon slot="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M440-240v-120H200v-80h240v-120l160 160-160 160ZM200-640v-80h560v80H200Z"/></svg></md-icon>
+            卸载
+        </md-primary-tab>
+        <md-primary-tab id="sulog-tab">
+            <md-icon slot="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-120q-75 0-140.5-28.5t-114-77q-48.5-48.5-77-114T120-480q0-75 28.5-140.5t77-114q48.5-48.5 114-77T480-840q82 0 155.5 35T760-706v-94h80v240H600v-80h100q-38-50-97-79t-123-29q-117 0-198.5 81.5T200-480q0 117 81.5 198.5T480-200q105 0 183.5-68T756-440h82q-15 137-117.5 228.5T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg></md-icon>
+            SU 日志
+        </md-primary-tab>
+        <md-primary-tab id="uname-tab">
+            <md-icon slot="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg></md-icon>
+            Uname
+        </md-primary-tab>
+    </md-tabs>
+
+    <div class="content-wrapper">
+        <div id="crown" class="content-container unresolved">
+            <div class="page-content">
+                <div class="feature-header">
+                    <div class="feature-title">管理器 UID</div>
+                    <md-switch id="save" disabled>开机时设置管理器</md-switch>
+                </div>
+                <div id="manager-loading" class="loading active">
+                    <md-circular-progress indeterminate></md-circular-progress>
+                    <span>加载中...</span>
+                </div>
+                <div id="crown-unsupported" class="unsupported">
+                    <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg></md-icon>
+                    <span>此功能不可用</span>
+                </div>
+                <div id="manager-empty" class="empty">
+                    <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q23 0 46 1.5t46 4.5q-14 19-20.5 41.5T424-348v20H120v40h294q9 36 29 68h-83v80h240v-80h-83q20-32 29-68h85v-40h-80v-20q0-23-6.5-45.5T553-421q38-7 72.5-4.5T696-410q11 2 20.5 5t17.5 7q40 21 62.5 58t22.5 80v40h80v-40q0-83-58.5-141.5T696-520q-21 0-41 3t-39 9q-15-22-36-38.5T553-571q-38-19-78-25t-82-6q-89 0-175 25.5T104-498q-48 24-76 64t-28 90v112h40Zm80-240h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm400 320q-17 0-28.5-11.5T640-280q0-17 11.5-28.5T680-320q17 0 28.5 11.5T720-280q0 17-11.5 28.5T680-240Zm0-160q-17 0-28.5-11.5T640-440q0-17 11.5-28.5T680-480q17 0 28.5 11.5T720-440q0 17-11.5 28.5T680-400Z"/></svg></md-icon>
+                    <span>未找到其他 KernelSU 管理器</span>
+                </div>
+                <div id="manager-list" class="list"></div>
+                <div id="ksu-version" class="version-input">
+                    <md-outlined-text-field label="KernelSU 版本" type="number" supporting-text="覆盖版本号">
+                        <md-icon-button class="text-field-button" slot="trailing-icon">
+                            <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg></md-icon>
+                        </md-icon-button>
+                    </md-outlined-text-field>
+                </div>
             </div>
-            <md-tabs>
-                <md-primary-tab id="crown-tab" aria-controls="content-crown" active>Crown</md-primary-tab>
-                <md-primary-tab id="umount-tab" aria-controls="content-umount">Umount</md-primary-tab>
-                <md-primary-tab id="uname" aria-controls="content-uname">Uname</md-primary-tab>
-                <md-primary-tab id="sulog-tab" aria-controls="content-sulog">SU log</md-primary-tab>
-            </md-tabs>
+            <div class="fab-container">
+                <md-fab id="crown" variant="primary" lowered>
+                    <md-icon slot="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M200-160v-80h560v80H200Zm0-140-80-440h720l-80 440H200Zm80-80h40v-120h-40v120Zm160 0h40v-120h-40v120Zm160 0h40v-120h-40v120ZM240-640h480l20-40H220l20 40Z"/></svg></md-icon>
+                </md-fab>
+            </div>
         </div>
-        <div class="horizontal-pager">
-            <!-- Crown -->
-            <div class="content-container" id="content-crown" role="tabpanel" aria-labelledby="crown-tab">
-                <div class="switch-item content">
-                    <label for="save">Set manager on boot</label>
-                    <md-switch icons id="save" disabled></md-switch>
+
+        <div class="content-container unresolved">
+            <div class="page-content">
+                <div class="feature-header">
+                    <div class="feature-title">内核卸载</div>
+                    <md-switch id="kernel-umount" disabled>内核卸载</md-switch>
                 </div>
-                <div class="text-field-with-button content" id="ksu-version">
-                    <md-outlined-text-field label="set ksu version"></md-outlined-text-field>
-                    <md-filled-icon-button class="text-field-button">
-                        <md-icon>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
-                        </md-icon>
-                    </md-filled-icon-button>
+                <div id="umount-unsupported" class="unsupported">
+                    <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg></md-icon>
+                    <span>此功能不可用</span>
                 </div>
-                <md-chip-set class="content" id="ksu-flags-chip-set">
-                    <md-filter-chip disabled class="ksu-flag-chip" data-flag="LKM" label="LKM"></md-filter-chip>
-                    <md-filter-chip disabled class="ksu-flag-chip" data-flag="MANAGER" label="Manager" hidden></md-filter-chip>
-                    <md-filter-chip disabled class="ksu-flag-chip" data-flag="LATE_LOAD" label="Late Load"></md-filter-chip>
-                    <md-filter-chip disabled class="ksu-flag-chip" data-flag="PR_BUILD" label="PR Build"></md-filter-chip>
-                </md-chip-set>
-                <div class="list content" id="manager-list">
-                    <!-- list of manager -->
+                <div id="rezygisk" class="unsupported">
+                    <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg></md-icon>
+                    <span>此功能由 ReZygisk 管理</span>
                 </div>
-                <div class="inactive-banner active" id="manager-loading">Loading...</div>
-                <div class="inactive-banner" id="manager-empty">No other KernelSU manager found</div>
-                <div class="inactive-banner" id="crown-unsupported">This feature is not available</div>
+                <div id="umount-empty" class="empty">
+                    <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M440-240v-120H200v-80h240v-120l160 160-160 160ZM200-640v-80h560v80H200Z"/></svg></md-icon>
+                    <span>尚未添加卸载条目</span>
+                </div>
+                <div id="umount-list" class="list"></div>
+                <div id="mount-entry-search" class="search-box" hidden>
+                    <md-outlined-text-field label="搜索挂载点" type="search" supporting-text="输入以搜索">
+                        <md-icon-button class="text-field-button" slot="trailing-icon">
+                            <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg></md-icon>
+                        </md-icon-button>
+                    </md-outlined-text-field>
+                    <md-menu></md-menu>
+                </div>
             </div>
-            <md-fab variant="primary" class="show" label="Crown" id="crown">
-                <md-icon slot="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M200-160v-80h560v80H200Zm0-140-51-321q-2 0-4.5.5t-4.5.5q-25 0-42.5-17.5T80-680q0-25 17.5-42.5T140-740q25 0 42.5 17.5T200-680q0 7-1.5 13t-3.5 11l125 56 125-171q-11-8-18-21t-7-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820q0 15-7 28t-18 21l125 171 125-56q-2-5-3.5-11t-1.5-13q0-25 17.5-42.5T820-740q25 0 42.5 17.5T880-680q0 25-17.5 42.5T820-620q-2 0-4.5-.5t-4.5-.5l-51 321H200Zm68-80h424l26-167-105 46-133-183-133 183-105-46 26 167Zm212 0Z"/></svg>
-                </md-icon>
-            </md-fab>
-            <!-- Umount -->
-            <div class="content-container unresolved" id="content-umount" role="tabpanel" aria-labelledby="umount-tab">
-                <div class="switch-item content">
-                    <label for="kernel-umount">Kernel umount</label>
-                    <md-switch icons id="kernel-umount" disabled></md-switch>
-                </div>
-                <div class="text-field-with-button content" id="mount-entry-search" hidden>
-                    <md-outlined-text-field label="mount point"></md-outlined-text-field>
-                    <md-filled-icon-button class="text-field-button">
-                        <md-icon>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
-                        </md-icon>
-                    </md-filled-icon-button>
-                    <md-menu anchor-corner="start-start" menu-corner="end-start"></md-menu>
-                </div>
-                <div class="list content" id="umount-list">
-                    <!-- list of umount entry -->
-                </div>
-                <div class="inactive-banner" id="umount-unsupported">This feature is not available</div>
-                <div class="inactive-banner" id="umount-empty">No umount entry added yet</div>
-                <div class="inactive-banner" id="rezygisk">This feature is managed by ReZygisk</div>
-            </div>
-            <!-- Uname -->
-            <div class="content-container unresolved" id="content-uname" role="tabpanel" aria-labelledby="uname-tab">
-                <div class="uname-content content">
-                    <div class="switch-item">
-                        <label for="uname-set-on-boot">Set uname on boot</label>
-                        <md-switch icons id="uname-set-on-boot"></md-switch>
+        </div>
+
+        <div class="content-container unresolved">
+            <div class="page-content">
+                <div class="feature-header">
+                    <div class="feature-title">SU 日志</div>
+                    <div class="filter-container">
+                        <md-chip-set>
+                            <md-filter-chip id="filter-all" label="全部" selected></md-filter-chip>
+                            <md-filter-chip id="filter-exclude-manager" label="排除管理器"></md-filter-chip>
+                            <md-filter-chip id="filter-access" label="访问"></md-filter-chip>
+                            <md-filter-chip id="filter-stat" label="状态"></md-filter-chip>
+                            <md-filter-chip id="filter-exec" label="执行"></md-filter-chip>
+                            <md-filter-chip id="filter-ioctl" label="IOCTL"></md-filter-chip>
+                        </md-chip-set>
                     </div>
-                    <md-outlined-text-field label="Release" id="uname-release"></md-outlined-text-field>
-                    <md-outlined-text-field label="Version" id="uname-version"></md-outlined-text-field>
-                    <md-filled-button id="uname-apply">APPLY</md-filled-button>
-                    <md-outlined-button id="uname-reset">RESET</md-outlined-button>
                 </div>
+                <div id="sulist-loading" class="loading active">
+                    <md-circular-progress indeterminate></md-circular-progress>
+                    <span>加载中...</span>
+                </div>
+                <div id="sulog-unsupported" class="unsupported">
+                    <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg></md-icon>
+                    <span>此功能不可用</span>
+                </div>
+                <div id="sulog-list" class="list"></div>
             </div>
-            <!-- sulog -->
-            <div class="content-container unresolved" id="content-sulog" role="tabpanel" aria-labelledby="sulog-tab">
-                <md-chip-set class="content">
-                    <md-filter-chip id="filter-all" label="All"></md-filter-chip>
-                    <md-filter-chip id="filter-access" label="access"></md-filter-chip>
-                    <md-filter-chip id="filter-stat" label="stat"></md-filter-chip>
-                    <md-filter-chip id="filter-exec" label="exec"></md-filter-chip>
-                    <md-filter-chip id="filter-ioctl" label="ioctl"></md-filter-chip>
-                    <md-filter-chip id="filter-exclude-manager" label="Exclude Manager" selected></md-filter-chip>
-                </md-chip-set>
-                <div class="list content" id="sulog-list">
-                    <!-- list of SU log -->
+        </div>
+
+        <div class="content-container unresolved">
+            <div class="page-content">
+                <div class="feature-header">
+                    <div class="feature-title">Uname 伪装</div>
+                    <md-switch id="uname-set-on-boot">开机时设置 uname</md-switch>
                 </div>
-                <div class="inactive-banner active" id="sulist-loading">Loading...</div>
-                <div class="inactive-banner" id="sulog-unsupported">This feature is not available</div>
+                <div id="uname-unsupported" class="unsupported">
+                    <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg></md-icon>
+                    <span>此功能不可用</span>
+                </div>
+                <div class="uname-inputs">
+                    <md-outlined-text-field id="uname-release" label="发布版本" supporting-text="例如: 6.1.25-android14"></md-outlined-text-field>
+                    <md-outlined-text-field id="uname-version" label="版本信息" supporting-text="例如: #1 SMP PREEMPT"></md-outlined-text-field>
+                </div>
+                <div class="action-buttons">
+                    <md-filled-button id="uname-apply">应用</md-filled-button>
+                    <md-outlined-button id="uname-reset">重置</md-outlined-button>
+                </div>
             </div>
         </div>
     </div>
