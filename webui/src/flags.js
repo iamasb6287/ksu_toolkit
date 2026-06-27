@@ -1,13 +1,13 @@
 const KSU_FLAGS = Object.freeze({
-    LKM:       1 << 0, // 1
-    MANAGER:   1 << 1, // 2
+    LKM: 1 << 0, // 1
+    MANAGER: 1 << 1, // 2
     LATE_LOAD: 1 << 2, // 4
-    PR_BUILD:  1 << 3, // 8
+    PR_BUILD: 1 << 3, // 8
 });
 
 const getKsuFlagStateKey = (flag) => flag
     .toLowerCase()
-    .replace(/_([a-z])/g, (_, char) => char.toUpperCase());
+    .replace(/_(\[a-z\])/g, (_, char) => char.toUpperCase());
 
 const getFlagState = (flagsValue) =>
     Object.entries(KSU_FLAGS).reduce((state, [flag, bit]) => {
@@ -16,7 +16,7 @@ const getFlagState = (flagsValue) =>
     }, {});
 
 const buildFlagsValue = (state) => {
-    let nextValue = KSU_FLAGS.MANAGER; // always enable manager
+    let nextValue = KSU_FLAGS.MANAGER; // 始终启用管理器
 
     for (const [flag, bit] of Object.entries(KSU_FLAGS)) {
         if (flag === 'MANAGER') continue;

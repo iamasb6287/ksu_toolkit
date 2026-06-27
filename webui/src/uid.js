@@ -26,7 +26,7 @@ async function getKsuManager() {
                     });
                 });
             } catch (e) {
-                // Vite debug
+                // Vite 调试
                 if (import.meta.env.DEV) {
                     manager = [
                         { packageName: "me.weishu.kernelsu", appLabel: "KernelSU", uid: 10006 },
@@ -52,9 +52,9 @@ async function setManager(uid, manager) {
         { env: { PATH: `$PATH:${modDir}:${ksuDir}/bin` }}
     ).then((result) => {
         if (result.errno !== 0) {
-            toast("Failed to crown manager: " + result.stderr);
+            toast("切换管理器失败: " + result.stderr);
         } else {
-            toast("Success, root access might no longer avaible in current window.");
+            toast("成功，当前窗口可能不再拥有 Root 权限。");
         }
     }).catch(() => { });
 }
@@ -62,7 +62,7 @@ async function setManager(uid, manager) {
 function saveManager(uid) {
     const cmd = uid ? `echo ${uid} >` : `rm -rf ${versionFile}`;
     exec(`${cmd} ${uidFile}`).then((result) => {
-        if (result.errno !== 0) toast("Failed to save manager_uid: " + result.stderr);
+        if (result.errno !== 0) toast("保存 manager_uid 失败: " + result.stderr);
     }).catch(() => { });
 }
 

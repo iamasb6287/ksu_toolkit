@@ -5,7 +5,7 @@ let umountProvider = 'none';
 let umountList = [], umountedList = [], mountEntryList = [];
 
 async function getUmountList() {
-    // Vite debug
+    // Vite 调试
     if (import.meta.env.DEV) {
         umountList = ["/system/etc/hosts", "/system/bin/su"];
         return;
@@ -21,7 +21,7 @@ async function getUmountList() {
 }
 
 async function getUmountedList() {
-    // Vite debug
+    // Vite 调试
     if (import.meta.env.DEV) {
         umountedList = ["/system/etc/hosts"];
         return;
@@ -37,7 +37,7 @@ async function getUmountedList() {
 }
 
 async function getMountEntryList() {
-    // Vite debug
+    // Vite 调试
     if (import.meta.env.DEV) {
         mountEntryList = [
             { source: "overlay", mount_point: "/system/app", fs_type: "overlay", options: "ro", dump: 0, pass: 0 },
@@ -47,7 +47,7 @@ async function getMountEntryList() {
     }
 
     const decodeEscapes = (str) => {
-        return str.replace(/\\([0-7]{3})/g, (match, octal) => {
+        return str.replace(/\\(\[0-7\]{3})/g, (match, octal) => {
             return String.fromCharCode(parseInt(octal, 8));
         });
     };
@@ -81,7 +81,7 @@ async function getUmountProvider() {
         grep -i "Welcome to" ${ksuDir}/logcat.log || true
     `).then((result) => {
         const output = result.stdout.trim();
-        if (import.meta.env.DEV) { // Vite debug
+        if (import.meta.env.DEV) { // Vite 调试
             umountProvider = "zygisknext";
         } else if (output.includes("enforce_denylist")) {
             if (parseInt(output.split(':')[1] !== 0)) {

@@ -2,7 +2,7 @@ import { exec, toast } from 'kernelsu-alt';
 import { bin, modDir, unameFile } from './index.js'
 
 async function getUname() {
-    if (import.meta.env.DEV) { // vite debug
+    if (import.meta.env.DEV) { // vite 调试
         document.getElementById('uname-release').value = "6.18.2-spoofed";
         document.getElementById('uname-version').value = "#1 SMP PREEMPT_DYNAMIC Thu, 18 Dec 2025 18:00:18 +0000";
     }
@@ -27,7 +27,7 @@ async function applyUname(newRelease, newVersion) {
 
     let cmd;
     if (setOnBoot && (newRelease !== "default" || newVersion !== "default")) {
-        cmd = `printf "RELEASE=\\"${newRelease}\\"\nVERSION=\\"${newVersion}\\"" >`;
+        cmd = `printf "RELEASE=\"${newRelease}\"\nVERSION=\"${newVersion}\"" >`;
     } else {
         cmd = 'rm -rf';
     }

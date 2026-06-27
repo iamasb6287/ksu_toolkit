@@ -22,14 +22,14 @@ async function getAppList() {
             });
         });
     } catch (e) {
-        // Vite debug
+        // Vite 调试
         if (import.meta.env.DEV) {
             appList = [
-                { packageName: "com.android.example", appLabel: "Example", uid: 10008 },
+                { packageName: "com.android.example", appLabel: "示例", uid: 10008 },
             ];
         }
     }
-    
+
 }
 
 function getSulog() {
@@ -40,19 +40,19 @@ function getSulog() {
             upTime = parseInt(data.trim().split(' ')[1]);
             return;
         }
-        // output format = sym: i uid: 010230 time: 0000000154
+        // 输出格式 = sym: i uid: 010230 time: 0000000154
         const symbol = data.trim().split(' ')[1];
         const userId = parseInt(data.trim().split(' ')[3]);
         const timeStamp = data.trim().split(' ')[5] ? parseInt(data.trim().split(' ')[5]) : 0;
         copy.push({ uid: userId, sym: symbol, time: timeStamp });
     });
     result.on('exit', () => {
-        if (import.meta.env.DEV) { // Vite debug
+        if (import.meta.env.DEV) { // Vite 调试
             upTime = 800;
             copy.push({ uid: 10008, sym: '$', time: 20 });
         }
 
-        // Since sulog give a maximum 250 lines of output so we need this to compare the overlapping length
+        // 由于 sulog 最多输出 250 行，我们需要比较重叠长度
         let overlap = 0;
         const maxLen = Math.min(sulogOld.length, copy.length);
         for (let len = maxLen; len >= 0; len--) {
@@ -78,4 +78,4 @@ function parseSymbol(sym) {
     return symbolMap[sym] || [sym];
 }
 
-export { appList, sulogList, upTime, symbolMap, getAppList, getSulog, parseSymbol }
+export { appList, sulogList, upTime, symbolMap, getAppList, getSulog, parseSymbol };
