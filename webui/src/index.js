@@ -34,7 +34,7 @@ export const unameFile = ksuDir + "/.uname";
 
 let ksuFlagState = null;
 
-// Manager uid crown
+// 管理器 UID 切换
 function appendManagerList() {
     const managerList = document.getElementById('manager-list');
     managerList.innerHTML = '';
@@ -133,14 +133,14 @@ function setupKsuFlagListeners() {
                 const nextValue = flagsModule.buildFlagsValue(flagsModule.readFlagState());
 
                 try {
-                    const result = await exec(`${bin} --setflags ${nextValue}`, { env: { PATH: `${modDir}` }});
-                    if (result.errno !== 0) throw new Error(result.stderr || 'Failed to update KSU flags');
+                    const result = await exec(`${bin} --setflags ${nextValue}`, { env: { PATH: `${modDir}` } });
+                    if (result.errno !== 0) throw new Error(result.stderr || '更新 KSU 标志失败');
                     ksuFlagState = { ...ksuFlagState, ...flagsModule.readFlagState() };
                     const output = result.stdout.trim() || result.stderr.trim();
                     if (output && output !== 'ok') toast(output);
                 } catch {
                     flagsModule.applyFlagStateToChip(ksuFlagState);
-                    toast('Failed to update KSU flags');
+                    toast('更新 KSU 标志失败');
                 }
             });
         });
@@ -149,26 +149,28 @@ function setupKsuFlagListeners() {
 
 async function initKsuFlags() {
     const parseInfoFlags = (text) => {
-        if (import.meta.env.DEV) return 5;
+        if (import.meta.env.DEV) {
+            return 3;
+        }
         const match = text.match(/^flags:\s*(\d+)$/m);
-        if (!match) throw new Error('Missing flags value in toolkit --getinfo output');
+        if (!match) throw new Error('toolkit --getinfo 输出中缺少 flags 值');
         return Number.parseInt(match[1], 10);
     };
 
     try {
-        const result = await exec(`${bin} --getinfo`, { env: { PATH: `${modDir}` }});
+        const result = await exec(`${bin} --getinfo`, { env: { PATH: `${modDir}` } });
         const flagsValue = parseInfoFlags(result.stdout);
         ksuFlagState = flagsModule.getFlagState(flagsValue);
         flagsModule.applyFlagStateToChip(ksuFlagState);
     } catch {
-        toast('Failed to read KSU flags');
+        toast('读取 KSU 标志失败');
     }
 }
 
 function checkUidFeature() {
     exec(
         `${bin} --setuid $(${bin} --getuid) || exit 1`,
-        { env: { PATH: `$PATH:${modDir}` }}
+        { env: { PATH: `$PATH:${modDir}` } }
     ).then((result) => {
         document.getElementById('manager-loading').classList.remove('active');
         if (result.errno !== 0 && !import.meta.env.DEV) {
@@ -180,7 +182,7 @@ function checkUidFeature() {
     }).catch(() => { });
 }
 
-// Kernel umount
+// 内核卸载
 function appendUmountList() {
     const umountEntryList = document.getElementById('umount-list');
     umountEntryList.innerHTML = '';
@@ -211,7 +213,7 @@ function appendUmountList() {
             } else if (umountModule.umountProvider === 'neozygisk') {
                 provider = 'NeoZygisk';
             }
-            listItem.querySelector('.reminder').textContent = `${provider} is likely handling this entry.`;
+            listItem.querySelector('.reminder').textContent = `${provider} 可能正在处理此条目。`;
         }
         listItem.querySelector('.remove-btn').onclick = async () => {
             await umountModule.removeUmount(item);
@@ -302,7 +304,7 @@ function setupUmountPageListener() {
 }
 
 function checkUmountFeature() {
-    exec(`${bin} --getlist`, { env: { PATH: `$PATH:${modDir}` }}).then((result) => {
+    exec(`${bin} --getlist`, { env: { PATH: `$PATH:${modDir}` } }).then((result) => {
         if (result.stderr.trim() === 'fail' && !import.meta.env.DEV) {
             document.getElementById('umount-unsupported').classList.add('active');
             return;
@@ -316,7 +318,7 @@ function checkUmountFeature() {
 function handleChipChange(selectedId) {
     const allChip = document.getElementById('filter-all');
     const opChips = ['filter-access', 'filter-stat', 'filter-exec', 'filter-ioctl'];
-    
+
     if (selectedId === 'filter-all' && allChip.selected) {
         opChips.forEach(id => document.getElementById(id).removeAttribute('selected'));
     } else if (opChips.includes(selectedId)) {
@@ -357,7 +359,7 @@ function filterSuLogList() {
     });
 }
 
-// SU log
+// SU 日志
 export function appendSuLogList(newList, currentDate) {
     const suLogList = document.getElementById('sulog-list');
     const loading = document.getElementById('sulist-loading');
@@ -398,7 +400,7 @@ export function appendSuLogList(newList, currentDate) {
 }
 
 function checkSuLogFeature() {
-    exec(`${bin} --sulog`, { env: { PATH: `$PATH:${modDir}` }}).then((result) => {
+    exec(`${bin} --sulog`, { env: { PATH: `$PATH:${modDir}` } }).then((result) => {
         if (result.stdout.trim() === '' && !import.meta.env.DEV) {
             document.getElementById('sulist-loading').classList.remove('active');
             document.getElementById('sulog-unsupported').classList.add('active');
@@ -414,11 +416,11 @@ function checkUpdate() {
     let htmlContent;
     const remote = spawn(`
         if command -v curl; then
-            curl -Ls ${link}
+            curl -Ls  ${link}
         else
             busybox wget -qO- ${link}
         fi
-    `, [], { env: { PATH: `$PATH:${ksuDir}/bin` }});
+    `, [], { env: { PATH: `$PATH:${ksuDir}/bin` } });
     remote.stdout.on('data', (data) => htmlContent += data);
     remote.on('exit', (code) => {
         if (code !== 0) return;
@@ -430,20 +432,20 @@ function checkUpdate() {
         const remoteVersion = parseInt(zipURL.split("-")[1]) || 0;
 
         exec(
-            `cat /data/adb/modules_update/ksu_toolkit/module.prop ${modDir}/module.prop | grep "^versionCode=" | head -n1 | cut -d= -f2`
+            `cat /data/adb/modules_update/ksu_toolkit/module.prop ${modDir}/module.prop | grep "versionCode=" | head -n1 | cut -d= -f2`
         ).then((local) => {
             if (local.stdout.trim() === '') return;
             const localVersion = parseInt(local.stdout.trim());
             if (localVersion < remoteVersion) {
-                toast("Update available!");
+                toast("有更新可用！");
                 document.getElementById('update-btn').classList.add('show');
                 document.getElementById('update-btn').onclick = () => {
-                    toast("Redirecting to " + link);
+                    toast("正在跳转到 " + link);
                     setTimeout(() => {
                         exec(`am start -a android.intent.action.VIEW -d ${link}`)
                             .then(({ errno }) => {
                                 if (errno !== 0) {
-                                    toast("Failed to open link");
+                                    toast("打开链接失败");
                                     return;
                                 }
                                 document.getElementById('exit-btn').click();
@@ -491,7 +493,7 @@ function initTab() {
 document.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('[unresolved]').forEach(el => el.removeAttribute('unresolved'));
 
-    // exit button
+    // 退出按钮
     const exitBtn = document.getElementById('exit-btn');
     if (typeof window.ksu !== 'undefined' && typeof window.ksu.exit !== 'undefined') {
         exitBtn.onclick = () => ksu.exit()
@@ -501,30 +503,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         exitBtn.style.display = 'none';
     }
 
-    // tab init
+    // 标签页初始化
     initTab();
 
-    // Uid feature init
+    // UID 功能初始化
     await uidModule.getKsuManager();
     await uidModule.getCurrentUid();
     checkUidFeature();
 
-    // Ksu flags feature init
+    // KSU 标志功能初始化
     await initKsuFlags();
     setupKsuFlagListeners();
 
-    // Kernel umount feature init
+    // 内核卸载功能初始化
     await umountModule.getUmountList();
     await umountModule.getUmountedList();
     await umountModule.getMountEntryList();
     await umountModule.getUmountProvider();
     checkUmountFeature();
 
-    // SU log feature init
+    // SU 日志功能初始化
     await sulogModule.getAppList();
     checkSuLogFeature();
 
-    // Uname feature init
+    // Uname 功能初始化
     unameModule.getUname();
     unameModule.initListeners();
 
